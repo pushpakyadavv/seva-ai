@@ -16,13 +16,13 @@ async function doLogin() {
   const errEl = document.getElementById("loginError");
   errEl.innerText = "";
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
   if (error) { errEl.innerText = "Authentication failed: " + error.message; return; }
 
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.user.id).single();
+  const { data: profile } = await db.from("profiles").select("*").eq("id", data.user.id).single();
   if (!profile || profile.role !== "commander") {
     errEl.innerText = "Access denied. Commander credentials required.";
-    await supabase.auth.signOut();
+    await db.auth.signOut();
     return;
   }
 
@@ -118,7 +118,6 @@ async function uploadCSV(file) {
         File: <code>${data.filename}</code><br>
         Rows inserted: <strong>${data.rows_inserted}</strong><br>
         Rows skipped: <strong>${data.rows_skipped}</strong>
-        ${hasErrors ? `<br><br><strong>Errors (first ${data.errors.length}):</strong><br><pre style="font-size:11px;white-space:pre-wrap;margin-top:6px;">${JSON.stringify(data.errors, null, 2)}</pre>` : ""}
       </div>`;
     toast("Import complete", "success");
     await loadOverview();
@@ -142,7 +141,6 @@ AR-23021-C,72,62,7.8,2,Nominal`;
   toast("Template downloaded", "success");
 }
 
-// Drag-and-drop
 document.addEventListener("DOMContentLoaded", () => {
   const dz = document.getElementById("dropZone");
   if (!dz) return;
@@ -165,14 +163,14 @@ function refreshOverview() {
 }
 
 async function doLogout() {
-  await supabase.auth.signOut();
+  await db.auth.signOut();
   location.reload();
 }
 
 (async () => {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await db.auth.getSession();
   if (session) {
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+    const { data: profile } = await db.from("profiles").select("*").eq("id", session.user.id).single();
     if (profile?.role === "commander") {
       document.getElementById("cmdId").innerText = profile.service_number || "—";
       document.getElementById("rankEl").innerText = profile.rank || "—";

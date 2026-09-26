@@ -1,9 +1,6 @@
 let CURRENT_USER = null;
 let CURRENT_TOKEN = null;
 
-// ============================================================
-// 20-QUESTION SELF-ASSESSMENT (3 sets: 7 + 7 + 6)
-// ============================================================
 const QUESTIONNAIRE = {
   1: [
     { q: "I have been feeling tense or on edge during the past week.", q_hi: "पिछले सप्ताह मैं तनाव या बेचैनी महसूस कर रहा हूँ।", q_ta: "கடந்த வாரம் நான் பதற்றமாக உணர்ந்தேன்." },
@@ -134,24 +131,21 @@ async function submitFullAssessment() {
   }
 }
 
-// ============================================================
-// AUTH + DASHBOARD
-// ============================================================
 async function doLogin() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const errEl = document.getElementById("loginError");
   errEl.innerText = "";
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
   if (error) { errEl.innerText = "Authentication failed: " + error.message; return; }
 
   CURRENT_USER = data.user;
 
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", CURRENT_USER.id).single();
+  const { data: profile } = await db.from("profiles").select("*").eq("id", CURRENT_USER.id).single();
   if (!profile || profile.role !== "personal") {
     errEl.innerText = "Access denied. This console is for Personal role only.";
-    await supabase.auth.signOut();
+    await db.auth.signOut();
     return;
   }
 
@@ -213,15 +207,14 @@ async function refreshWellness() {
 }
 
 async function doLogout() {
-  await supabase.auth.signOut();
+  await db.auth.signOut();
   location.reload();
 }
 
-// Auto-login
 (async () => {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await db.auth.getSession();
   if (session) {
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+    const { data: profile } = await db.from("profiles").select("*").eq("id", session.user.id).single();
     if (profile?.role === "personal") {
       CURRENT_USER = session.user;
       document.getElementById("svcNo").innerText = profile.service_number || "—";

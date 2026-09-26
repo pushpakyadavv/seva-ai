@@ -16,13 +16,13 @@ async function doLogin() {
   const errEl = document.getElementById("loginError");
   errEl.innerText = "";
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
   if (error) { errEl.innerText = "Authentication failed: " + error.message; return; }
 
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.user.id).single();
+  const { data: profile } = await db.from("profiles").select("*").eq("id", data.user.id).single();
   if (!profile || profile.role !== "welfare_officer") {
     errEl.innerText = "Access denied. Welfare Officer credentials required.";
-    await supabase.auth.signOut();
+    await db.auth.signOut();
     return;
   }
 
@@ -131,14 +131,14 @@ function refreshRegister() {
 }
 
 async function doLogout() {
-  await supabase.auth.signOut();
+  await db.auth.signOut();
   location.reload();
 }
 
 (async () => {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await db.auth.getSession();
   if (session) {
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+    const { data: profile } = await db.from("profiles").select("*").eq("id", session.user.id).single();
     if (profile?.role === "welfare_officer") {
       document.getElementById("officerId").innerText = profile.service_number || "—";
       document.getElementById("rankEl").innerText = profile.rank || "—";

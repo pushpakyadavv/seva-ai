@@ -1,14 +1,14 @@
 // ============================================================
 // Supabase client + backend URL config
 // ============================================================
-const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_ANON_KEY";
+const SUPABASE_URL = "https://lyjnjnrkbfdlvvkqmgfa.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5am5qbnJrYmZkbHZ2a3FtZ2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0MDg4NDgsImV4cCI6MjEwNTk4NDg0OH0.vGnHkpY4rM0ZlrlOKlAto_uoLkFdL7bHMtUcV0kjZwI";
 const BACKEND_URL = "http://localhost:8000";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function getJWT() {
-  const { data } = await supabase.auth.getSession();
+  const { data } = await db.auth.getSession();
   return data?.session?.access_token || null;
 }
 

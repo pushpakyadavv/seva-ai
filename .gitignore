@@ -1,2 +1,32 @@
+# Python virtual environments
+backend/venv3/
+backend/venv311/
+backend/venv311_broken/
+backend/venv/
+venv*/
+__pycache__/
+*.pyc
+*.pyo
+
+# ML model (regenerated with train.py)
+backend/stress_model.pkl
+*.pkl
+
+# Test scripts (local only)
+backend/test_create.py
+test_create.py
+
+# Environment files — NEVER commit
 backend/.env
-backend/.env
+.env
+*.env
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
