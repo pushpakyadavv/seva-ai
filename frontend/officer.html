@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Seva AI — Welfare Officer Console</title>
+<link rel="stylesheet" href="shared.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="gov-strip">
+  <span><span class="class-mark">RESTRICTED</span> &nbsp;|&nbsp; For Official Use Only &nbsp;|&nbsp; Ministry of Defence</span>
+  <span>System Ref: SEVA-AI/2025/v2.4.1</span>
+</div>
+
+<div id="loginView" class="login-shell">
+  <div class="login-card">
+    <div class="seal">SA</div>
+    <h2>Welfare Officer Console</h2>
+    <div class="lead">Officer Authentication Required</div>
+    <div class="form-row">
+      <label data-i18n="email">Service Email</label>
+      <input type="email" id="email" placeholder="officer@army.in"/>
+    </div>
+    <div class="form-row">
+      <label data-i18n="password">Password</label>
+      <input type="password" id="password" placeholder="••••••••"/>
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()" data-i18n="login">Authenticate</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-footer">Access Level II — Full Personnel Records</div>
+  </div>
+</div>
+
+<div id="dashboardView" class="hidden">
+  <header>
+    <div class="brand">
+      <div class="emblem">SA</div>
+      <div class="brand-text">
+        <h1>SEVA AI — Soldier Wellness Management System</h1>
+        <p>Integrated Health & Stress Monitoring Platform</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="ref">SESSION: <span id="sessId">—</span></div>
+      <span class="time" id="liveClock">—</span>
+    </div>
+  </header>
+
+  <div class="nav-bar">
+    <button class="nav-btn active">Welfare Officer Console</button>
+    <div class="lang-switch">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="hi">हिं</button>
+      <button class="lang-btn" data-lang="ta">த</button>
+    </div>
+    <div class="menu-wrap" style="margin-left:14px;">
+      <button class="menu-btn" onclick="toggleMenu('officerMenu')" data-i18n="menu">Menu ▾</button>
+      <div class="menu-dropdown" id="officerMenu">
+        <button class="menu-item" onclick="exportData('csv')">
+          <strong data-i18n="export_csv">Export as CSV</strong>
+          <small>Full personnel register</small>
+        </button>
+        <button class="menu-item" onclick="exportData('json')">
+          <strong data-i18n="export_json">Export as JSON</strong>
+          <small>API-friendly format</small>
+        </button>
+        <button class="menu-item" onclick="refreshRegister()">
+          <strong>Refresh Register</strong>
+          <small>Reload latest data</small>
+        </button>
+      </div>
+    </div>
+    <button class="btn" style="color:#fff;border-color:#4a5d6f;margin-left:8px;" onclick="doLogout()" data-i18n="logout">Logout</button>
+  </div>
+
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h2 data-i18n="console_officer">Welfare Officer Console</h2>
+        <div class="sub">
+          Officer ID: <strong id="officerId">—</strong> &nbsp;|&nbsp;
+          Rank: <strong id="rankEl">—</strong> &nbsp;|&nbsp;
+          Jurisdiction: <strong id="unitEl">—</strong>
+        </div>
+      </div>
+      <div class="status-pill pill-restricted" data-i18n="access_level_ii">Access Level II — Full Records</div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat-label" data-i18n="total_personnel">Personnel Under Care</div>
+        <div class="stat-value" id="totalEl">—</div>
+        <div class="stat-note">Active service records</div>
+      </div>
+      <div class="stat crit">
+        <div class="stat-label" data-i18n="priority_intervention">Priority Intervention</div>
+        <div class="stat-value" style="color:var(--red);" id="highEl">—</div>
+        <div class="stat-note">High-risk classification</div>
+      </div>
+      <div class="stat warn">
+        <div class="stat-label" data-i18n="under_observation">Under Observation</div>
+        <div class="stat-value" style="color:var(--amber);" id="medEl">—</div>
+        <div class="stat-note">Medium-risk classification</div>
+      </div>
+      <div class="stat ok">
+        <div class="stat-label" data-i18n="nominal_status">Nominal Status</div>
+        <div class="stat-value" style="color:var(--green);" id="lowEl">—</div>
+        <div class="stat-note">Within healthy parameters</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3 data-i18n="personnel_register">Personnel Wellness Register</h3>
+        <span class="meta" id="lastUpdated">—</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:60px;">S.No</th>
+            <th data-i18n="service_no">Service Number</th>
+            <th>Name & Rank</th>
+            <th data-i18n="risk_classification">Classification</th>
+            <th>Score</th>
+            <th data-i18n="last_sync">Last Sync</th>
+            <th style="width:180px;" data-i18n="action">Action</th>
+          </tr>
+        </thead>
+        <tbody id="registerBody">
+          <tr><td colspan="7" class="loading">Loading register...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="notice notice-warn">
+      <strong>Action Required</strong>
+      Personnel classified as High-Risk must be contacted within 24 hours of detection, per Standing Order 12/2024. Log all interventions in the Officer Register upon completion.
+    </div>
+  </div>
+
+  <footer>
+    <div>© 2025 Seva AI &nbsp;|&nbsp; Version 2.4.1</div>
+    <div class="right">Generated: <span id="footTime">—</span> &nbsp;|&nbsp; Node: IN-BLR-01</div>
+  </footer>
+</div>
+
+<script src="supabase-client.js"></script>
+<script src="i18n.js"></script>
+<script src="officer.js"></script>
+</body>
+</html>

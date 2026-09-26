@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Seva AI — Personal Console</title>
+<link rel="stylesheet" href="shared.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="gov-strip">
+  <span><span class="class-mark">RESTRICTED</span> &nbsp;|&nbsp; For Official Use Only &nbsp;|&nbsp; Ministry of Defence</span>
+  <span>System Ref: SEVA-AI/2025/v2.4.1</span>
+</div>
+
+<!-- LOGIN -->
+<div id="loginView" class="login-shell">
+  <div class="login-card">
+    <div class="seal">SA</div>
+    <h2>Personal Console</h2>
+    <div class="lead">Soldier Authentication Required</div>
+    <div class="form-row">
+      <label data-i18n="email">Service Email</label>
+      <input type="email" id="email" placeholder="soldier@army.in" autocomplete="email"/>
+    </div>
+    <div class="form-row">
+      <label data-i18n="password">Password</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()" data-i18n="login">Authenticate</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-footer">Unauthorized access is prohibited.<br>All activity is monitored and audited.</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardView" class="hidden">
+  <header>
+    <div class="brand">
+      <div class="emblem">SA</div>
+      <div class="brand-text">
+        <h1>SEVA AI — Soldier Wellness Management System</h1>
+        <p>Integrated Health & Stress Monitoring Platform</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="ref">SESSION: <span id="sessId">—</span></div>
+      <span class="time" id="liveClock">—</span>
+    </div>
+  </header>
+
+  <div class="nav-bar">
+    <button class="nav-btn active">Personal Console</button>
+    <div class="lang-switch">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="hi">हिं</button>
+      <button class="lang-btn" data-lang="ta">த</button>
+    </div>
+    <button class="btn" style="color:#fff;border-color:#4a5d6f;margin-left:14px;" onclick="doLogout()" data-i18n="logout">Logout</button>
+  </div>
+
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h2 data-i18n="console_personal">Personal Wellness Console</h2>
+        <div class="sub">
+          <span data-i18n="service_no">Service Number</span>: <strong id="svcNo">—</strong> &nbsp;|&nbsp;
+          <span data-i18n="rank">Rank</span>: <strong id="rankEl">—</strong> &nbsp;|&nbsp;
+          <span data-i18n="unit">Unit</span>: <strong id="unitEl">—</strong>
+        </div>
+      </div>
+      <div class="status-pill pill-active" data-i18n="session_active">Session Active</div>
+    </div>
+
+    <div id="loadingBlock" class="loading">Loading wellness record...</div>
+
+    <div id="dataBlock" class="hidden">
+      <div class="stat-grid">
+        <div class="stat" id="riskCard">
+          <div class="stat-label" data-i18n="risk_classification">Risk Classification</div>
+          <div class="stat-value" id="riskVal" style="font-size:22px;">—</div>
+          <div class="stat-note" id="riskNote">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label" data-i18n="composite_index">Composite Stress Index</div>
+          <div class="stat-value" id="scoreVal">—<small>/10</small></div>
+          <div class="bar"><div class="bar-fill" id="scoreBar" style="width:0%"></div></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Anonymous Token</div>
+          <div class="stat-value" style="font-size:13px;font-family:Consolas,monospace;word-break:break-all;" id="tokenVal">—</div>
+          <div class="stat-note">AI processes this identifier only</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label" data-i18n="last_sync">Last Medical Sync</div>
+          <div class="stat-value" style="font-size:16px;" id="syncVal">—</div>
+          <div class="stat-note">Auto-refreshed every 60s</div>
+        </div>
+      </div>
+
+      <div class="notice notice-info">
+        <strong data-i18n="advisory">Advisory</strong>
+        <span id="suggestionText">—</span>
+      </div>
+
+      <div class="notice notice-ok">
+        <strong data-i18n="privacy_notice">Data Privacy — Confidentiality Undertaking</strong>
+        Your identity is protected under tokenized data architecture. The predictive engine processes records under anonymous identifier <strong id="inlineToken">#—</strong> and does not retain personal identifiers. Name linkage is restricted solely to the assigned Welfare Officer for support purposes.
+      </div>
+
+      <!-- 20-QUESTION WIZARD -->
+      <div class="wizard" id="wizardPanel">
+        <div class="wizard-head">
+          <h3 data-i18n="self_assessment">Self-Assessment Questionnaire</h3>
+          <div class="wizard-steps">
+            <div class="step-pill active" data-step="1">1</div>
+            <div class="step-pill" data-step="2">2</div>
+            <div class="step-pill" data-step="3">3</div>
+          </div>
+        </div>
+        <div class="wizard-progress"><div class="wizard-progress-fill" id="wizProgress" style="width:33%"></div></div>
+        <div class="wizard-body" id="wizardBody">
+          <!-- Injected by JS -->
+        </div>
+        <div class="wizard-nav">
+          <button class="btn" id="btnPrev" onclick="wizardPrev()" data-i18n="previous">Previous</button>
+          <span style="font-size:11px;color:var(--muted);letter-spacing:.5px;">
+            <span data-i18n="question_set">Question Set</span> <strong id="setLabel">1</strong>
+            <span data-i18n="of">of</span> <strong>3</strong>
+          </span>
+          <button class="btn btn-primary" id="btnNext" onclick="wizardNext()" data-i18n="next">Next Set</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>© 2025 Seva AI &nbsp;|&nbsp; Version 2.4.1</div>
+    <div class="right">Generated: <span id="footTime">—</span> &nbsp;|&nbsp; Node: IN-BLR-01</div>
+  </footer>
+</div>
+
+<script src="supabase-client.js"></script>
+<script src="i18n.js"></script>
+<script src="personal.js"></script>
+</body>
+</html>

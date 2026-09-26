@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Seva AI — Commander Console</title>
+<link rel="stylesheet" href="shared.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="gov-strip">
+  <span><span class="class-mark">RESTRICTED</span> &nbsp;|&nbsp; For Official Use Only &nbsp;|&nbsp; Ministry of Defence</span>
+  <span>System Ref: SEVA-AI/2025/v2.4.1</span>
+</div>
+
+<div id="loginView" class="login-shell">
+  <div class="login-card">
+    <div class="seal">SA</div>
+    <h2>Commander Console</h2>
+    <div class="lead">Commanding Officer Authentication Required</div>
+    <div class="form-row">
+      <label data-i18n="email">Service Email</label>
+      <input type="email" id="email" placeholder="commander@army.in"/>
+    </div>
+    <div class="form-row">
+      <label data-i18n="password">Password</label>
+      <input type="password" id="password" placeholder="••••••••"/>
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()" data-i18n="login">Authenticate</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-footer">Access Level I — Aggregate Metrics Only</div>
+  </div>
+</div>
+
+<div id="dashboardView" class="hidden">
+  <header>
+    <div class="brand">
+      <div class="emblem">SA</div>
+      <div class="brand-text">
+        <h1>SEVA AI — Soldier Wellness Management System</h1>
+        <p>Integrated Health & Stress Monitoring Platform</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="ref">SESSION: <span id="sessId">—</span></div>
+      <span class="time" id="liveClock">—</span>
+    </div>
+  </header>
+
+  <div class="nav-bar">
+    <button class="nav-btn active">Commander Console</button>
+    <div class="lang-switch">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="hi">हिं</button>
+      <button class="lang-btn" data-lang="ta">த</button>
+    </div>
+    <div class="menu-wrap" style="margin-left:14px;">
+      <button class="menu-btn" onclick="toggleMenu('cmdMenu')" data-i18n="menu">Menu ▾</button>
+      <div class="menu-dropdown" id="cmdMenu">
+        <button class="menu-item" onclick="openImport()">
+          <strong data-i18n="import_csv">Bulk Import (CSV)</strong>
+          <small>Upload personnel data file</small>
+        </button>
+        <button class="menu-item" onclick="downloadTemplate()">
+          <strong data-i18n="import_help">CSV Format Guide</strong>
+          <small>Download sample template</small>
+        </button>
+        <button class="menu-item" onclick="refreshOverview()">
+          <strong>Refresh Overview</strong>
+          <small>Reload latest metrics</small>
+        </button>
+      </div>
+    </div>
+    <button class="btn" style="color:#fff;border-color:#4a5d6f;margin-left:8px;" onclick="doLogout()" data-i18n="logout">Logout</button>
+  </div>
+
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h2 data-i18n="console_commander">Commander Console</h2>
+        <div class="sub">
+          Officer ID: <strong id="cmdId">—</strong> &nbsp;|&nbsp;
+          Rank: <strong id="rankEl">—</strong> &nbsp;|&nbsp;
+          Formation: <strong id="unitEl">—</strong>
+        </div>
+      </div>
+      <div class="status-pill pill-restricted" data-i18n="access_level_i">Access Level I — Aggregate Only</div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat warn">
+        <div class="stat-label">Formation Stress Index</div>
+        <div class="stat-value" id="avgVal">—<small>/10</small></div>
+        <div class="bar"><div class="bar-fill bf-amber" id="avgBar" style="width:0%"></div></div>
+      </div>
+      <div class="stat crit">
+        <div class="stat-label">Personnel Flagged High-Risk</div>
+        <div class="stat-value" style="color:var(--red);" id="highVal">—</div>
+        <div class="stat-note">Referred to Welfare Officer</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Strength (Monitored)</div>
+        <div class="stat-value" id="totalVal">—</div>
+        <div class="stat-note">Active sync coverage</div>
+      </div>
+      <div class="stat ok">
+        <div class="stat-label">Operational Readiness</div>
+        <div class="stat-value" style="font-size:20px;color:var(--green);" id="readinessVal">—</div>
+        <div class="stat-note">Per wellness metrics</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3 data-i18n="formation_overview">Formation Wellness Distribution</h3>
+        <span class="meta">Last 7 days</span>
+      </div>
+      <div class="panel-body">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:12px;">
+          <span style="color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:700;" data-i18n="overall_index">Overall Wellness Index</span>
+          <strong style="color:var(--green);font-size:15px;" id="wellnessVal">—</strong>
+        </div>
+        <div class="bar" style="height:10px;">
+          <div class="bar-fill bf-green" id="wellnessBar" style="width:0%"></div>
+        </div>
+
+        <table style="margin-top:22px;">
+          <thead>
+            <tr>
+              <th>Classification</th>
+              <th>Personnel</th>
+              <th>Percentage</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Nominal</td>
+              <td><strong id="nominalCount">—</strong></td>
+              <td id="nominalPct">—</td>
+              <td><span class="tag tag-low">Within Range</span></td>
+            </tr>
+            <tr>
+              <td>Under Observation</td>
+              <td><strong id="obsCount">—</strong></td>
+              <td id="obsPct">—</td>
+              <td><span class="tag tag-med">Monitoring</span></td>
+            </tr>
+            <tr>
+              <td>Priority Intervention</td>
+              <td><strong id="priCount">—</strong></td>
+              <td id="priPct">—</td>
+              <td><span class="tag tag-high">Referred</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- IMPORT PANEL -->
+    <div class="panel hidden" id="importPanel">
+      <div class="panel-head">
+        <h3 data-i18n="import_data">Import Personnel Data</h3>
+        <span class="meta">CSV format — see format guide</span>
+      </div>
+      <div class="panel-body">
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('csvFile').click()">
+          <strong data-i18n="drop_file">Drop CSV file here or click to browse</strong>
+          <small data-i18n="file_format_note">Required columns: service_number, heart_rate, hrv, sleep_hours, stress_level</small>
+          <div class="file-name" id="fileName"></div>
+        </div>
+        <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleFile(this.files[0])" />
+        <div id="importResult"></div>
+      </div>
+    </div>
+
+    <div class="notice notice-warn">
+      <strong data-i18n="privacy_commander">Confidentiality Notice — Access Level I</strong>
+      This console displays aggregated formation-level wellness metrics only. Individual personnel names, biometrics, and self-assessment records are restricted from this view under the Data Protection Protocol. For case-level intervention, coordinate directly with the assigned Welfare Officer.
+    </div>
+  </div>
+
+  <footer>
+    <div>© 2025 Seva AI &nbsp;|&nbsp; Version 2.4.1</div>
+    <div class="right">Generated: <span id="footTime">—</span> &nbsp;|&nbsp; Node: IN-BLR-01</div>
+  </footer>
+</div>
+
+<script src="supabase-client.js"></script>
+<script src="i18n.js"></script>
+<script src="commander.js"></script>
+</body>
+</html>

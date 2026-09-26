@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Seva AI — Access Portal</title>
+<link rel="stylesheet" href="shared.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="gov-strip">
+  <span><span class="class-mark">RESTRICTED</span> &nbsp;|&nbsp; For Official Use Only &nbsp;|&nbsp; Ministry of Defence</span>
+  <span>System Ref: SEVA-AI/2025/v2.4.1</span>
+</div>
+
+<header>
+  <div class="brand">
+    <div class="emblem">SA</div>
+    <div class="brand-text">
+      <h1>SEVA AI — Soldier Wellness Management System</h1>
+      <p>Integrated Health & Stress Monitoring Platform</p>
+    </div>
+  </div>
+</header>
+
+<div style="background:var(--steel);padding:0 28px;display:flex;align-items:center;border-bottom:1px solid #1a2332;">
+  <div style="flex:1;"></div>
+  <div class="lang-switch">
+    <button class="lang-btn active" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="hi">हिं</button>
+    <button class="lang-btn" data-lang="ta">த</button>
+  </div>
+</div>
+
+<div class="page" style="max-width:900px;">
+  <div class="page-header">
+    <div>
+      <h2>Role-Based Access Portal</h2>
+      <div class="sub">Select your console to proceed. Access is logged and audited.</div>
+    </div>
+    <div class="status-pill pill-active">System Operational</div>
+  </div>
+
+  <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);">
+    <a href="personal.html" style="text-decoration:none;">
+      <div class="stat" style="cursor:pointer;">
+        <div class="stat-label">Role 01</div>
+        <div class="stat-value" style="font-size:20px;">Personal</div>
+        <div class="stat-note">Soldier wellness console. View own data only.</div>
+        <button class="btn btn-primary" style="width:100%;margin-top:14px;padding:9px;">Open Console</button>
+      </div>
+    </a>
+    <a href="officer.html" style="text-decoration:none;">
+      <div class="stat warn" style="cursor:pointer;">
+        <div class="stat-label">Role 02</div>
+        <div class="stat-value" style="font-size:20px;">Welfare Officer</div>
+        <div class="stat-note">Full records with names. Intervention authority.</div>
+        <button class="btn btn-primary" style="width:100%;margin-top:14px;padding:9px;">Open Console</button>
+      </div>
+    </a>
+    <a href="commander.html" style="text-decoration:none;">
+      <div class="stat crit" style="cursor:pointer;">
+        <div class="stat-label">Role 03</div>
+        <div class="stat-value" style="font-size:20px;">Commander</div>
+        <div class="stat-note">Aggregate unit metrics only. No identities.</div>
+        <button class="btn btn-primary" style="width:100%;margin-top:14px;padding:9px;">Open Console</button>
+      </div>
+    </a>
+  </div>
+
+  <div class="notice notice-warn">
+    <strong>Access Control Notice</strong>
+    All login attempts, page views, and data retrievals are recorded in the audit log. Unauthorized access attempts will be escalated as per Section 66 of the Information Technology Act.
+  </div>
+</div>
+
+<footer>
+  <div>© 2025 Seva AI &nbsp;|&nbsp; Version 2.4.1</div>
+  <div class="right">Node: IN-BLR-01</div>
+</footer>
+
+<script src="supabase-client.js"></script>
+<script src="i18n.js"></script>
+</body>
+</html>
