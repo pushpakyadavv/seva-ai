@@ -3,7 +3,7 @@
 // ============================================================
 const SUPABASE_URL = "https://lyjnjnrkbfdlvvkqmgfa.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5am5qbnJrYmZkbHZ2a3FtZ2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0MDg4NDgsImV4cCI6MjEwNTk4NDg0OH0.vGnHkpY4rM0ZlrlOKlAto_uoLkFdL7bHMtUcV0kjZwI";
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL = "https://seva-ai-aky7.onrender.com";
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
